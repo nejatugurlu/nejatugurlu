@@ -10,4 +10,4 @@ An educational, high-performance robot controller built with advanced "Pythonic"
 
 ## 📘 Educational Guide / Eğitim Kılavuzu
 Want to learn the advanced Python secrets behind this code? 
-Check out our detailed guide: [👉 PYTHONIC_DETAILS.md](./PYTHONIC_DETAILS.md)
+Check out our detailed guide: [pythonic_robotics_guide.md)
