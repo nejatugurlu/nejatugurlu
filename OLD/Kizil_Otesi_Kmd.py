@@ -11,7 +11,7 @@ KUMANDA_HARITASI = {
     "0xFF1194AB": "HIZARTIR",  # "MENU"
     "0xFF11B48B": "HIZAZALT"   # "EXIT"
 }
-class KO_Alici:
+class KOAlici:
     def __init__(self, pi, pin):
         self.pi = pi
         self.pin = pin

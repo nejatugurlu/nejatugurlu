@@ -15,7 +15,7 @@ rf, rb = 19, 26
 irpin=24
 
 class NCMotor(Motor):
-    def __init__(self, left, right, radius):
+    def __init__(self, left, right, radius=None):
         super().__init__(left, right)
         self.radius = radius
 
@@ -23,34 +23,35 @@ class NCMotor(Motor):
         return round(math.pi * self.radius ** 2, 2)
 
 class NCRobot():
-    def __init__(self, lf, lb, rf, rb, radius):
+    def __init__(self, lf, lb, rf, rb, radius=None):
         self.radius = radius
-        self.ml = NCMotor(lf, lb, radius)
-        self.mr = NCMotor(rf, rb, radius)
+        self.ml = NCMotor(lf, lb)
+        self.mr = NCMotor(rf, rb)
         
-    def ileri(self, speed):
+    def ileri(self, speed=None):
+        if speed==None:speed=1
         self.ml.forward(speed)
         self.mr.forward(speed)
 
-    def geri(self, speed):
-        self.ml.backward(speed)
-        self.mr.backward(speed)
+    def geri(self, speed=None):
+        self.ml.backward()
+        self.mr.backward()
      
-    def saga(self, speed):
-        self.ml.forward(speed)
+    def saga(self, speed=None):
+        self.ml.forward()
         self.mr.stop()
     
-    def sola(self, speed):
+    def sola(self, speed=None):
         self.ml.stop()
-        self.mr.forward(speed)
+        self.mr.forward()
    
-    def tamsaga(self, speed):
-        self.ml.forward(speed)
-        self.mr.backward(speed)
+    def tamsaga(self, speed=None):
+        self.ml.forward()
+        self.mr.backward()
 
-    def tamsola(self, speed):
-        self.ml.backward(speed)
-        self.mr.forward(speed)
+    def tamsola(self, speed=None):
+        self.ml.backward()
+        self.mr.forward()
     
     def dur(self):
         self.ml.stop()
@@ -58,7 +59,7 @@ class NCRobot():
 
 # Donanım Kurulumları
 r = 40  
-ncr = NCRobot(lf, lb, rf, rb, r)
+ncr = NCRobot(lf, lb, rf, rb)
 
 ledPR = PWMLED(lpr)  # Sağ Sinyal
 ledPW = PWMLED(lpw)  # Sol Sinyal
@@ -67,7 +68,7 @@ ledPW = PWMLED(lpw)  # Sol Sinyal
 # ==========================================
 # SİNYAL VE İKAZ FONKSİYONU
 # ==========================================
-def sinyal_ver(direction):
+def sinyalVer(direction):
     """Yön değişimine göre LED sinyallerini ve ikazları yönetir."""
     if direction == "SOLA":
         ledPR.off()
@@ -90,7 +91,7 @@ def sinyal_ver(direction):
         ledPR.off()
         ledPW.off()
 
-def robot_sur(direction, speed):
+def robotSur(direction, speed=None ):
     """Robot pinlerini belirlenen hız değeri ile kontrol eder."""
     if direction == "ILERI":
         ncr.ileri(speed)
@@ -107,7 +108,7 @@ def robot_sur(direction, speed):
     else:
         ncr.dur()
 
-def robot_sinyal_sur(direction, speed):
+def robotSinyalSur(direction, speed=None):
     if direction == "ILERI":
         ncr.ileri(speed)
     elif direction == "GERI":
@@ -137,4 +138,18 @@ def robot_sinyal_sur(direction, speed):
         ledPR.off()
         ledPW.off()
     
+def rotadaGit(*komutlar):
+    # 'komutlar' fonksiyon içinde bir Tuple (demet) gibi davranır
+    print(f"Toplam {len(komutlar)} adet komut alındı.")
+    
+    for komut in komutlar:
+        print(f"Robotun sıradaki hareketi: {komut}")
+        robotSur(komut)
+#         robot_sinyal_sur(komut)
+        time.sleep(3)
 
+def rotaEkle(yeni_yon, rota_listesi=None):
+    if rota_listesi is None:
+        rota_listesi = [] # E?er liste gönderilmediyse temiz bir liste aç
+    rota_listesi.append(yeni_yon)
+    return rota_listesi
