@@ -10,8 +10,8 @@ from dataclasses import dataclass
 
 from Mouse_Menu_01 import Kumanda_Menu, Buton 
 from Kizil_Otesi_Kumanda_01 import KO_Alici
-from Uzaklik_Sensor_02 import Mesafe_Kontrol
-from Robot_02 import Robot
+from Uzaklik_Sensor_01 import Mesafe_Kontrol
+from Robot_01 import Robot
 from Pin_Ayarlari  import Pin
 
       
