@@ -199,35 +199,38 @@ class Uygulama:
                 self.metin_silme_zamani = 0
             
             for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-               
-                if event.type == pygame.VIDEORESIZE:
-                    # 1. Yeni ekran boyutlarını kaydet
-                    self.ekran_en, self.ekran_boy = event.w, event.h
-                    self.menu.konumGuncelle()
-                
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    # Depodaki buton listesini tarıyoruz (aktif butonun yeri için)
-                    for i, buton in enumerate(self.menu.butonlar):
-                        if buton.tiklandi_mi(event.pos):
-                            akt_but_ind = i
-
-                if event.type in self.mouse_aksiyonlari:
-                    self.mouse_aksiyonlari[event.type]()
-                    
-                if event.type==KEYDOWN and event.key in self.klavye_aksiyonlari:
-                    self.klavye_aksiyonlari[event.key]()
-                    
-                if event.type == KEYUP:
-                # DÜZELTME: Raspberry Pi'de tuş bırakılınca robot durmalı, 
-                # aksi halde haf?zada kalan yönü sonsuza kadar sürdürür.
-                    if event.key in [K_UP, K_DOWN, K_LEFT, K_RIGHT,  K_w, K_s, K_x, K_z, K_c, K_a, K_d]:
-                        with self.durum_lock:
-                            self.anlik_yon = "DUR"
-                            self.anlik_hiz=0.60
-
+                match event.type:
+                    case pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                        
+                    case pygame.VIDEORESIZE:
+                        # 1. Yeni ekran boyutlarını kaydediyoruz
+                        self.ekran_en, self.ekran_boy = event.w, event.h
+                        self.menu.konum_guncelle()  # PEP 8 standardına göre snake_case yapıldı
+                        
+                    case pygame.MOUSEBUTTONDOWN if event.button == 1:
+                        # 'if' koşulunu doğrudan case ifadesinin yanına (Guard) ekleyebiliyoruz
+                        for i, buton in enumerate(self.menu.butonlar):
+                            if buton.tiklandi_mi(event.pos):
+                                akt_but_ind = i
+                                
+                    case pygame.KEYDOWN if event.key in self.klavye_aksiyonlari:
+                        # Klavyeden bir tuşa basıldıysa ve bu tuş aksiyon haritamızda varsa tetikliyoruz
+                        self.klavye_aksiyonlari[event.key]()
+                        
+                    case pygame.KEYUP:
+                        # Ahududu Pi güvenlik düzeltmesi: Tuş bırakılınca robotu güvenle durduruyoruz
+                        guvenli_tuslar = {K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_x, K_z, K_c, K_a, K_d}
+                        if event.key in guvenli_tuslar:
+                            with self.durum_lock:
+                                self.anlik_yon = "DUR"
+                                self.anlik_hiz = 0.60
+                                
+                    case e_type if e_type in self.mouse_aksiyonlari:
+                        # Eğer yukarıdaki case'lere girmeyen bir mouse olayı ise (ve sözlükte varsa) tetikliyoruz
+                        self.mouse_aksiyonlari[e_type]()
+                        
             with self.durum_lock:
                 su_anki_durum = self.ENGEL_YAKIN
 
