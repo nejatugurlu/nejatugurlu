@@ -1,4 +1,4 @@
-markdown# 🤖 Pythonic Autonomous Robot Controller
+🤖 Pythonic Autonomous Robot Controller
 An educational, high-performance robot controller built with advanced "Pythonic" design patterns on Raspberry Pi.
 
 Bu proje, bir mobil robotun motor ve sensör yönetimini gerçekleştiren, modern Python (3.10+) tasarım örüntüleri ve donanım kilitlenme korumalarıyla optimize edilmiş açık kaynaklı bir kontrol sistemidir.
