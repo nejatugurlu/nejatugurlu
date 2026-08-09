@@ -198,50 +198,74 @@ class Uygulama:
                 self.metin = self.FONT.render("", True, self.RENK_BEYAZ)
                 self.metin_silme_zamani = 0
             
+            # --- Pygame Event Döngüsü (Raspberry Pi / Python 3.9 Uyumlu Sürüm) ---
             for event in pygame.event.get():
-                match event.type:
-                    case pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
-                        
-                    case pygame.VIDEORESIZE:
-                        # 1. Yeni ekran boyutlarını kaydediyoruz
-                        self.ekran_en, self.ekran_boy = event.w, event.h
-                        self.menu.konum_guncelle()  # PEP 8 standardına göre snake_case yapıldı
-                        
-                    case pygame.MOUSEBUTTONDOWN if event.button == 1:
-                        # 'if' koşulunu doğrudan case ifadesinin yanına (Guard) ekleyebiliyoruz
-                        for i, buton in enumerate(self.menu.butonlar):
-                            if buton.tiklandi_mi(event.pos):
-                                akt_but_ind = i
-                                
-                    case pygame.KEYDOWN if event.key in self.klavye_aksiyonlari:
-                        # Klavyeden bir tuşa basıldıysa ve bu tuş aksiyon haritamızda varsa tetikliyoruz
-                        self.klavye_aksiyonlari[event.key]()
-                        
-                    case pygame.KEYUP:
-                        # Ahududu Pi güvenlik düzeltmesi: Tuş bırakılınca robotu güvenle durduruyoruz
-                        guvenli_tuslar = {K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_x, K_z, K_c, K_a, K_d}
-                        if event.key in guvenli_tuslar:
-                            with self.durum_lock:
-                                self.anlik_yon = "DUR"
-                                self.anlik_hiz = 0.60
-                                
-                    case e_type if e_type in self.mouse_aksiyonlari:
-                        # Eğer yukarıdaki case'lere girmeyen bir mouse olayı ise (ve sözlükte varsa) tetikliyoruz
-                        self.mouse_aksiyonlari[e_type]()
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+               
+                elif event.type == pygame.VIDEORESIZE:
+                    # 1. Yeni ekran boyutlar?n? kaydet
+                    self.ekran_en, self.ekran_boy = event.w, event.h
+                    self.menu.konum_guncelle()
+                
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    # Depodaki buton listesini tarıyoruz (aktif butonun yeri için)
+                    for i, buton in enumerate(self.menu.butonlar):
+                        if buton.tiklandi_mi(event.pos):
+                            akt_but_ind = i
+
+                elif event.type in self.mouse_aksiyonlari:
+                    self.mouse_aksiyonlari[event.type]()
+                    
+                elif event.type == KEYDOWN and event.key in self.klavye_aksiyonlari:
+                    self.klavye_aksiyonlari[event.key]()
+                    
+                elif event.type == pygame.KEYUP:
+                    # DÜZELTME: Raspberry Pi'de tuş bırakılınca robot durmalı, 
+                    # aksi halde hafızada kalan yönü sonsuza kadar sürdürür.
+                    guvenli_tuslar = {K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_x, K_z, K_c, K_a, K_d}
+                    if event.key in guvenli_tuslar:
+                        with self.durum_lock:
+                            self.anlik_yon = "DUR"
+                            self.anlik_hiz = 0.60
+
+                # =========================================================================
+                # REHBER ÖRNEK: Python 3.10 veya daha güncel sürümler kullananlar için
+                # yukarıdaki if-elif yapısı modern 'match-case' ile şu şekilde kurulabilir:
+                # =========================================================================
+                # match event.type:
+                #     case pygame.QUIT:
+                #         pygame.quit()
+                #         sys.exit()
+                #     case pygame.VIDEORESIZE:
+                #         self.ekran_en, self.ekran_boy = event.w, event.h
+                #         self.menu.konum_guncelle()
+                #     case pygame.MOUSEBUTTONDOWN if event.button == 1:
+                #         for i, buton in enumerate(self.menu.butonlar):
+                #             if buton.tiklandi_mi(event.pos): akt_but_ind = i
+                #     case pygame.KEYDOWN if event.key in self.klavye_aksiyonlari:
+                #         self.klavye_aksiyonlari[event.key]()
+                #     case pygame.KEYUP:
+                #         if event.key in {K_UP, K_DOWN, K_LEFT, K_RIGHT, K_w, K_s, K_x, K_z, K_c, K_a, K_d}:
+                #             with self.durum_lock:
+                #                 self.anlik_yon = "DUR"
+                #                 self.anlik_hiz = 0.60
+                #     case e_type if e_type in self.mouse_aksiyonlari:
+                #         self.mouse_aksiyonlari[e_type]()
+                # =========================================================================                       
                         
             with self.durum_lock:
                 su_anki_durum = self.ENGEL_YAKIN
 
-            # KR?T?K NOKTA: Sadece durum DEĞİŞTİYSE ekrana yazd?r
+            # KRİTİK NOKTA: Sadece durum DEĞİŞTİYSE ekrana yazdır
             if su_anki_durum != self.onceki_engel_durumu:
                 if su_anki_durum:
                     print("\n[ROBOT DURUMU] >>> ENGEL VAR! <<< (Yol Kilitlendi)")
                 else:
                     print("\n[ROBOT DURUMU] >>> YOL TEM?Z <<< (Sürüş Serbest)")
                 
-                # Yeni durumu haf?zaya kaydediyoruz ki bir sonraki ad?mda tekrar yazmas?n
+                # Yeni durumu hafızaya kaydediyoruz ki bir sonraki adımda tekrar yazmasın
                 self.onceki_engel_durumu = su_anki_durum
 
 
@@ -252,36 +276,36 @@ class Uygulama:
                 YASAK_ALAN = self.ENGEL_YAKIN
 
 
-            # ? S?NYAL TET?KLEME VE ROTA YÖNET?M?
+            # ? SİNYAL TETİKLEME VE ROTA YÖNETİMİ
             if self.hedef_yon != self.son_yon:
-                # 1. Önce LED sinyalini tetikliyoruz (Böylece thread kesinlikle ba?lar)
+                # 1. Önce LED sinyalini tetikliyoruz (Böylece thread kesinlikle başlar)
                 self.rbt.sinyalVer(self.hedef_yon)
                 
-                # 2. E?er rota modu aktifse rotaya ekleme yap?yoruz
+                # 2. Eğer rota modu aktifse rotaya ekleme yapıyoruz
                 if not self.ROTA_KURULMUYOR:
                     self.rota_liste = self.rotaEkle(self.hedef_yon, self.rota_liste)
                     rota_listestr = ",".join(self.rota_liste)
                     metinrota = self.FONT.render(rota_listestr, True, self.RENK_BEYAZ)
                     self.metin_silme_zamani = self.simdiki_zaman + 2000
                 
-                # 3. Durumu güncelliyoruz (Sadece tek bir yerde e?itleme yap?l?yor)
+                # 3. Durumu güncelliyoruz (Sadece tek bir yerde eşitleme yapılıyor)
                 self.son_yon = self.hedef_yon
 
-            # Sürü? mekanizmas? kontrolü
+            # Sürüş mekanizması kontrolü
 
             if self.ROTA_KURULMUYOR:
  
                 if YASAK_ALAN and self.hedef_yon == "ILERI":
-                    self.rbt.rbtotSur("DUR", 0.0) # ncr nesnesini fonksiyona gönderiyoruz
+                    self.rbt.rbtotSur("DUR", 0.0) # rbt nesnesini fonksiyona gönderiyoruz
                     print("[?? ENGEL] Önü kapalı! ileri sürüş engellendi.      ", end="\r")
                 else:
-                    self.rbt.robotSur(self.hedef_yon, self.hedef_hiz) # ncr nesnesini fonksiyona gönderiyoruz
+                    self.rbt.robotSur(self.hedef_yon, self.hedef_hiz) # rbbt nesnesini fonksiyona gönderiyoruz
                     print(f"[Durum] Motor: {self.hedef_yon:<18} | Engel: {str(YASAK_ALAN):<8}", end="\r")    
                     
             
             self.ekran.fill((30, 30, 30))
             
-            # Depodan gelen butonlar? ekrana çizdiriyoruz
+            # Depodan gelen butonları ekrana çizdiriyoruz
             for i, buton in enumerate(self.menu.butonlar):
                     
                 buton.ciz(self.ekran, AKTIF=(i == akt_but_ind))
