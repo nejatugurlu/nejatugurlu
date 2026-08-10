@@ -18,8 +18,8 @@ class Robot():
     def __init__(self, ana_merkez, SL_ILR, SL_GR, SG_ILR, SG_GR ):
         self.app = ana_merkez
         
-        self.LED_SL = PWMLED(Pin.US_ECHO)  
-        self.LED_SG = PWMLED(Pin.US_TRIG) 
+        self.LED_SL = PWMLED(Pin.LED_SL)  
+        self.LED_SG = PWMLED(Pin.LED_SG) 
         self.SL_ILR = Pin.SL_ILR
         self.SL_GR = Pin.SL_GR
         self.SG_ILR = Pin.SG_ILR
